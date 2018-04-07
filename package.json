@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "LoadLibrary-based DLL injection for Windows",
   "main": "index.js",
+  "types": "./lib/index.d.ts",
   "repository": "https://github.com/mcoot/node-dll-injector.git",
   "author": "Joseph Spearritt",
   "license": "MIT",
