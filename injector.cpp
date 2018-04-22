@@ -72,8 +72,8 @@ static bool injectHandle(HANDLE process, const char* dllFile) {
     LPVOID LoadLib = (LPVOID)GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
 
     // Allocate memory in the processs for the DLL path, and then write it there
-    LPVOID remotePathSpace = VirtualAllocEx(process, NULL, strlen(dllPath), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-    if (!WriteProcessMemory(process, remotePathSpace, dllPath, strlen(dllPath), NULL)) {
+    LPVOID remotePathSpace = VirtualAllocEx(process, NULL, strlen(dllPath) + 1, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    if (!WriteProcessMemory(process, remotePathSpace, dllPath, strlen(dllPath) + 1, NULL)) {
         // Failed to write memory
         CloseHandle(process);
         return false;
