@@ -22,3 +22,5 @@ if (isNotePadRunning) {
 }
 
 ```
+
+There are alternative versions of each function `injectPID` and `isProcessRunningPID` that inject based on process id.

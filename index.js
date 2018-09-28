@@ -9,11 +9,21 @@ const inject = (processName, dllFile) => {
     return injector.inject(processName, dllFile);
 };
 
+const injectPID = (pid, dllFile) => {
+    return injector.injectPID(pid, dllFile);
+};
+
 const isProcessRunning = (processName) => {
     return injector.isProcessRunning(processName);
 };
 
+const isProcessRunningPID = (pid) => {
+    return injector.isProcessRunningPID(pid);
+};
+
 module.exports = {
     inject,
-    isProcessRunning
+    injectPID,
+    isProcessRunning,
+    isProcessRunningPID
 };
