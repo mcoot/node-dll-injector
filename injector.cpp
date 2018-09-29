@@ -16,7 +16,7 @@ static HANDLE getProcess(const char* processName);
 static bool getProcessPID(DWORD pid, HANDLE* out);
 static int injectHandle(HANDLE process, const char* dllFile);
 
-bool injectInternal(const char* processName, const char* dllFile);
+int injectInternal(const char* processName, const char* dllFile);
 bool isProcessRunningInternal(const char* processName);
 
 int injectInternalPID(DWORD pid, const char* dllFile);
@@ -140,8 +140,8 @@ bool isProcessRunningInternalPID(DWORD pid) {
 }
 
 // Inject a DLL file into the process with the given name
-bool injectInternal(const char* processName, const char* dllFile) {
-    return injectHandle(getProcess(processName), dllFile) == 0;
+int injectInternal(const char* processName, const char* dllFile) {
+    return injectHandle(getProcess(processName), dllFile);
 }
 
 // Inject a DLL file into the process with the given pid
@@ -174,9 +174,9 @@ NAN_METHOD(inject) {
     const char* processName = *arg0;
     const char* dllName = *arg1;
 
-    bool val = injectInternal(processName, dllName);
+    int val = injectInternal(processName, dllName);
 
-    Local<Boolean> res = Nan::New(val);
+    Local<Int32> res = Nan::New(val);
     info.GetReturnValue().Set(res);
 }
 
