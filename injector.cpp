@@ -13,7 +13,7 @@ using namespace v8;
 ///////////////// Prototypes
 
 static HANDLE getProcess(const char* processName);
-static bool getProcessPID(DWORD pid, HANDLE* out);
+static HANDLE getProcessPID(DWORD pid);
 static int injectHandle(HANDLE process, const char* dllFile);
 
 int injectInternal(const char* processName, const char* dllFile);
@@ -61,12 +61,36 @@ static HANDLE getProcess(const char* processName) {
     return NULL;
 }
 
-static bool getProcessPID(DWORD pid, HANDLE* out) {
-    *out = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
-    if (!*out) {
-        return false;
+static HANDLE getProcessPID(DWORD pid) {
+    // Take a snapshot of processes currently running
+    HANDLE runningProcesses = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (runningProcesses == INVALID_HANDLE_VALUE) {
+        return NULL;
     }
-    return true;
+
+    PROCESSENTRY32 pe;
+    pe.dwSize = sizeof(PROCESSENTRY32);
+
+    // Find the desired process
+    BOOL res = Process32First(runningProcesses, &pe);
+    while (res) {
+        if (pe.th32ProcessID == pid) {
+            // Found the process
+            CloseHandle(runningProcesses);
+            HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe.th32ProcessID);
+            if (process == NULL) {
+                // Process failed to open
+                return NULL;
+            }
+            // Return a handle to this process
+            return process;
+        }
+        res = Process32Next(runningProcesses, &pe);
+    }
+
+    // Couldn't find the process
+    CloseHandle(runningProcesses);
+    return NULL;
 }
 
 // Inject a DLL file into the given process
@@ -132,9 +156,10 @@ bool isProcessRunningInternal(const char* processName) {
 
 // Returns true iff a process with the given pid is running
 bool isProcessRunningInternalPID(DWORD pid) {
-    HANDLE process = NULL;
-    getProcessPID(pid, &process);
-    if (process == NULL) return false;
+    HANDLE process = getProcessPID(pid);
+    if (process == NULL) {
+        return false;
+    }
     CloseHandle(process);
     return true;
 }
@@ -146,11 +171,7 @@ int injectInternal(const char* processName, const char* dllFile) {
 
 // Inject a DLL file into the process with the given pid
 int injectInternalPID(DWORD pid, const char* dllFile) {
-    HANDLE process;
-    if (!getProcessPID(pid, &process)) {
-        return 7;
-    }
-    return injectHandle(process, dllFile);
+    return injectHandle(getProcessPID(pid), dllFile);
 }
 
 

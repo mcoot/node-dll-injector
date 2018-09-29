@@ -1,6 +1,6 @@
 {
   "name": "node-dll-injector",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "LoadLibrary-based DLL injection for Windows",
   "main": "index.js",
   "types": "./lib/index.d.ts",
