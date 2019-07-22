@@ -5,7 +5,12 @@
                 "<!(node -e \"require('nan')\")"
             ],
             "target_name": "injector",
-            "sources": ["injector.cpp"]
-        }
+            "sources": ["injector.cpp"],
+            'conditions': [
+                ['OS != "win"', {
+                    'sources!': ['injector.cpp']
+                }
+            ]
+        ]}
     ]
 }
